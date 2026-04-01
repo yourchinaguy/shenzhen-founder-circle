@@ -83,9 +83,13 @@ export async function POST(request: Request) {
       status: "new",
     });
 
-    if (error) throw error;
+    if (error) {
+      console.error("Supabase insert error:", JSON.stringify(error));
+      return Response.json({ error: `Database error: ${error.message}` }, { status: 500 });
+    }
     return Response.json({ success: true }, { status: 201 });
-  } catch {
+  } catch (err) {
+    console.error("Request handler error:", err);
     return Response.json({ error: "Something went wrong. Try again." }, { status: 500 });
   }
 }
