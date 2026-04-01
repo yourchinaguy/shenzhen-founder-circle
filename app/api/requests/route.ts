@@ -3,8 +3,8 @@ import { rateLimit } from "@/lib/rate-limit";
 import { headers } from "next/headers";
 
 const VALID_CATEGORIES = [
-  "factory_supplier", "local_hire", "expert_call",
-  "investor", "government_regulatory", "other",
+  "factory", "supplier", "local_hire", "local_expert",
+  "investor", "government", "other",
 ];
 const VALID_URGENCIES = ["this_week", "this_month", "exploring"];
 const VALID_STATUSES = ["new", "reviewing", "need_more_info", "intro_made", "closed", "discarded"];
