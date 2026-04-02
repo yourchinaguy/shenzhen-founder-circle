@@ -153,7 +153,7 @@ export default function AdminDashboard() {
   const [requests, setRequests] = useState<IntroRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<"active" | "closed" | "discarded">("active");
+  const [filter, setFilter] = useState<"active" | "intro_made" | "discarded">("active");
 
   // Intro modal
   const [introFor, setIntroFor] = useState<string | null>(null);
@@ -263,8 +263,17 @@ export default function AdminDashboard() {
     return `mailto:${expertEmail}?cc=${encodeURIComponent(req.email)}&subject=${subject}&body=${body}`;
   }
 
-  // Sort by urgency, then by date
+  const STATUS_SORT: Record<string, number> = {
+    new: 0,
+    need_more_info: 1,
+    reviewing: 2,
+  };
+
+  // Sort by status (new first, then need_more_info), then urgency, then date
   const sortedRequests = [...requests].sort((a, b) => {
+    const statusA = STATUS_SORT[a.status] ?? 3;
+    const statusB = STATUS_SORT[b.status] ?? 3;
+    if (statusA !== statusB) return statusA - statusB;
     const urgA = URGENCY_ORDER[a.urgency] ?? 3;
     const urgB = URGENCY_ORDER[b.urgency] ?? 3;
     if (urgA !== urgB) return urgA - urgB;
@@ -272,12 +281,12 @@ export default function AdminDashboard() {
   });
 
   const filteredRequests = sortedRequests.filter((r) => {
-    if (filter === "active") return !["closed", "discarded"].includes(r.status);
-    if (filter === "closed") return r.status === "closed";
+    if (filter === "active") return ["new", "need_more_info", "reviewing"].includes(r.status);
+    if (filter === "intro_made") return ["intro_made", "closed"].includes(r.status);
     return r.status === "discarded";
   });
 
-  const activeCount = requests.filter((r) => !["closed", "discarded"].includes(r.status)).length;
+  const activeCount = requests.filter((r) => ["new", "need_more_info", "reviewing"].includes(r.status)).length;
   const newCount = requests.filter((r) => r.status === "new").length;
 
   // Sign-in screen
@@ -337,20 +346,23 @@ export default function AdminDashboard() {
 
       {/* Filter tabs */}
       <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
-        {(["active", "closed", "discarded"] as const).map((f) => (
+        {([
+          { key: "active" as const, label: "Active" },
+          { key: "intro_made" as const, label: "Intro Made" },
+          { key: "discarded" as const, label: "Discarded" },
+        ]).map((f) => (
           <button
-            key={f}
-            onClick={() => setFilter(f)}
+            key={f.key}
+            onClick={() => setFilter(f.key)}
             style={{
               padding: "6px 14px", borderRadius: 6, fontSize: 13, fontWeight: 500,
               fontFamily: "inherit", cursor: "pointer",
-              border: `1px solid ${filter === f ? "var(--accent)" : "var(--border)"}`,
-              background: filter === f ? "rgba(232,93,58,0.08)" : "var(--white)",
-              color: filter === f ? "var(--accent)" : "var(--muted)",
-              textTransform: "capitalize",
+              border: `1px solid ${filter === f.key ? "var(--accent)" : "var(--border)"}`,
+              background: filter === f.key ? "rgba(232,93,58,0.08)" : "var(--white)",
+              color: filter === f.key ? "var(--accent)" : "var(--muted)",
             }}
           >
-            {f}
+            {f.label}
           </button>
         ))}
       </div>
@@ -577,7 +589,7 @@ export default function AdminDashboard() {
       {!loading && filteredRequests.length === 0 && (
         <div style={{ textAlign: "center", padding: "48px 0", color: "var(--muted)" }}>
           <p style={{ fontSize: 16, fontWeight: 600, marginBottom: 8, color: "var(--text)" }}>
-            {filter === "active" ? "No active requests" : filter === "closed" ? "No closed requests" : "No discarded requests"}
+            {filter === "active" ? "No active requests" : filter === "intro_made" ? "No intros made yet" : "No discarded requests"}
           </p>
           {filter === "active" && (
             <p style={{ fontSize: 14 }}>Share the landing page link to start receiving intro requests.</p>
