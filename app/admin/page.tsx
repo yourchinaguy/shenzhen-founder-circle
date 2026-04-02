@@ -343,12 +343,7 @@ export default function AdminDashboard() {
   return (
     <div style={{ paddingTop: 32, paddingBottom: 64 }}>
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-        <h2 style={{ fontSize: 20 }}>Intro Requests</h2>
-        <span style={{ fontSize: 13, color: "var(--muted)" }}>
-          {newCount} new · {activeCount} active
-        </span>
-      </div>
+      <h2 style={{ fontSize: 20, marginBottom: 20 }}>Intro Requests</h2>
 
       {/* Filter tabs */}
       <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
