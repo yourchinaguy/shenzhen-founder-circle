@@ -154,6 +154,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<"active" | "intro_made" | "discarded">("active");
+  const [activeSubFilter, setActiveSubFilter] = useState<"all" | "new" | "need_more_info">("all");
 
   // Intro modal
   const [introFor, setIntroFor] = useState<string | null>(null);
@@ -281,7 +282,12 @@ export default function AdminDashboard() {
   });
 
   const filteredRequests = sortedRequests.filter((r) => {
-    if (filter === "active") return ["new", "need_more_info", "reviewing"].includes(r.status);
+    if (filter === "active") {
+      const isActive = ["new", "need_more_info", "reviewing"].includes(r.status);
+      if (!isActive) return false;
+      if (activeSubFilter === "all") return true;
+      return r.status === activeSubFilter;
+    }
     if (filter === "intro_made") return ["intro_made", "closed"].includes(r.status);
     return r.status === "discarded";
   });
@@ -347,13 +353,13 @@ export default function AdminDashboard() {
       {/* Filter tabs */}
       <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
         {([
-          { key: "active" as const, label: "Active" },
-          { key: "intro_made" as const, label: "Intro Made" },
-          { key: "discarded" as const, label: "Discarded" },
+          { key: "active" as const, label: `Active (${activeCount})` },
+          { key: "intro_made" as const, label: `Intro Made (${requests.filter(r => ["intro_made", "closed"].includes(r.status)).length})` },
+          { key: "discarded" as const, label: `Discarded (${requests.filter(r => r.status === "discarded").length})` },
         ]).map((f) => (
           <button
             key={f.key}
-            onClick={() => setFilter(f.key)}
+            onClick={() => { setFilter(f.key); if (f.key !== "active") setActiveSubFilter("all"); }}
             style={{
               padding: "6px 14px", borderRadius: 6, fontSize: 13, fontWeight: 500,
               fontFamily: "inherit", cursor: "pointer",
@@ -366,6 +372,31 @@ export default function AdminDashboard() {
           </button>
         ))}
       </div>
+
+      {/* Sub-filter for Active */}
+      {filter === "active" && activeCount > 0 && (
+        <div style={{ display: "flex", gap: 6, marginBottom: 24 }}>
+          {([
+            { key: "all" as const, label: "All" },
+            { key: "new" as const, label: `New (${newCount})` },
+            { key: "need_more_info" as const, label: `Need Info (${requests.filter(r => r.status === "need_more_info").length})` },
+          ]).map((sf) => (
+            <button
+              key={sf.key}
+              onClick={() => setActiveSubFilter(sf.key)}
+              style={{
+                padding: "4px 10px", borderRadius: 4, fontSize: 12, fontWeight: 500,
+                fontFamily: "inherit", cursor: "pointer",
+                border: "none",
+                background: activeSubFilter === sf.key ? "var(--primary)" : "var(--card)",
+                color: activeSubFilter === sf.key ? "#fff" : "var(--muted)",
+              }}
+            >
+              {sf.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       {loading && <p style={{ color: "var(--muted)" }}>Loading...</p>}
       {error && <p style={{ color: "var(--error)" }}>{error}</p>}
