@@ -450,7 +450,7 @@ export default function AdminDashboard() {
 
           {/* Actions */}
           {req.status !== "discarded" && (
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
               {["new", "reviewing", "need_more_info"].includes(req.status) && (
                 <a
                   href={buildMoreInfoMailto(req)}
@@ -498,7 +498,6 @@ export default function AdminDashboard() {
                   padding: "8px 16px", borderRadius: 6, border: "1px solid var(--border)",
                   background: "var(--white)", fontSize: 13, fontWeight: 500,
                   fontFamily: "inherit", cursor: "pointer", color: "var(--error)",
-                  marginLeft: "auto",
                 }}
               >
                 Discard
@@ -513,13 +512,13 @@ export default function AdminDashboard() {
               background: "var(--surface)", border: "1px solid var(--border)",
             }}>
               <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>Who are you introducing them to?</p>
-              <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+              <div style={{ display: "grid", gap: 8, marginBottom: 8 }}>
                 <input
                   type="text" value={expertName}
                   onChange={(e) => setExpertName(e.target.value)}
                   placeholder="Expert name"
                   style={{
-                    flex: 1, padding: "8px 12px", borderRadius: 6,
+                    width: "100%", padding: "10px 12px", borderRadius: 6,
                     border: "1px solid var(--border)", fontSize: 16, outline: "none",
                   }}
                 />
@@ -528,12 +527,12 @@ export default function AdminDashboard() {
                   onChange={(e) => setExpertEmail(e.target.value)}
                   placeholder="Expert email"
                   style={{
-                    flex: 1, padding: "8px 12px", borderRadius: 6,
+                    width: "100%", padding: "10px 12px", borderRadius: 6,
                     border: "1px solid var(--border)", fontSize: 16, outline: "none",
                   }}
                 />
               </div>
-              <div style={{ display: "flex", gap: 8 }}>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                 <a
                   href={buildIntroMailto(req)}
                   style={{
